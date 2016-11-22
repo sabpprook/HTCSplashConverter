@@ -93,22 +93,23 @@ namespace HTCSplashConverter
         {
             FileStream input = File.OpenRead(filename);
             int height = 0, width = 0;
-            if (input.Length / 2 >= 3686400)
+            int contentLength = detectSplashLength(filename);
+            if (contentLength == 3686400)
             {
                 height = 2560;
                 width = 1440;
             }
-            else if (input.Length / 2 >= 2073600)
+            else if (contentLength == 2073600)
             {
                 height = 1920;
                 width = 1080;
             }
-            else if (input.Length / 2 >= 921600)
+            else if (contentLength == 921600)
             {
                 height = 1280;
                 width = 720;
             }
-            else if (input.Length / 2 >= 518400)
+            else if (contentLength == 518400)
             {
                 height = 960;
                 width = 540;
@@ -119,6 +120,12 @@ namespace HTCSplashConverter
                 width = Convert.ToInt32(txt_Width.Text);
                 txt_Height.Clear();
                 txt_Width.Clear();
+            }
+            if (height == 0 && width == 0)
+            {
+                input.Close();
+                MessageBox.Show("Can not detect splash resolution!");
+                return;
             }
             BinaryReader br = new BinaryReader(input);
             int rowByte = width * 3;
@@ -159,6 +166,19 @@ namespace HTCSplashConverter
             bw.Write(bitmapData);
             bw.Close();
             output.Close();
+        }
+
+        private int detectSplashLength(string filename)
+        {
+            byte[] data = File.ReadAllBytes(filename);
+            int pos = data.Length;
+            UInt16 content = (UInt16)((data[pos - 2] << 8) | data[pos - 1]);
+            while (content == 0)
+            {
+                pos -= 2;
+                content = (UInt16)((data[pos - 2] << 8) | data[pos - 1]);
+            }
+            return pos / 2;
         }
 
         private void BMP2Splash(string filename)
