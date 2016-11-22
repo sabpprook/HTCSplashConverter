@@ -93,31 +93,12 @@ namespace HTCSplashConverter
         {
             FileStream input = File.OpenRead(filename);
             int height = 0, width = 0;
-            int contentLength = detectSplashLength(filename);
-            if (contentLength == 3686400)
-            {
-                height = 2560;
-                width = 1440;
-            }
-            else if (contentLength == 2073600)
-            {
-                height = 1920;
-                width = 1080;
-            }
-            else if (contentLength == 921600)
-            {
-                height = 1280;
-                width = 720;
-            }
-            else if (contentLength == 518400)
-            {
-                height = 960;
-                width = 540;
-            }
+            detectSplashLength(ref input, ref height, ref width);
             if (txt_Height.Text.Length > 1 && txt_Width.Text.Length > 1)
             {
                 height = Convert.ToInt32(txt_Height.Text);
                 width = Convert.ToInt32(txt_Width.Text);
+                MessageBox.Show(string.Format("Resolution define {0}x{1}", width, height));
                 txt_Height.Clear();
                 txt_Width.Clear();
             }
@@ -168,17 +149,28 @@ namespace HTCSplashConverter
             output.Close();
         }
 
-        private int detectSplashLength(string filename)
+        private void detectSplashLength(ref FileStream file, ref int height, ref int width)
         {
-            byte[] data = File.ReadAllBytes(filename);
-            int pos = data.Length;
-            UInt16 content = (UInt16)((data[pos - 2] << 8) | data[pos - 1]);
-            while (content == 0)
+            if (file.Length == 0x720000 /*HTC stock splash*/ || file.Length == 0x708000)
             {
-                pos -= 2;
-                content = (UInt16)((data[pos - 2] << 8) | data[pos - 1]);
+                height = 2560;
+                width = 1440;
             }
-            return pos / 2;
+            else if (file.Length == 0x400000 /*HTC stock splash*/ || file.Length == 0x3F4800)
+            {
+                height = 1920;
+                width = 1080;
+            }
+            else if (file.Length == 0x1E0000 /*HTC stock splash*/ || file.Length == 0x1C2000)
+            {
+                height = 1280;
+                width = 720;
+            }
+            else if (file.Length == 0x100000 /*HTC stock splash*/ || file.Length == 0xFD200)
+            {
+                height = 960;
+                width = 540;
+            }
         }
 
         private void BMP2Splash(string filename)
