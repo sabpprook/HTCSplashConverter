@@ -195,6 +195,7 @@ namespace HTCSplashConverter
                 br.Close();
                 input.Close();
                 MessageBox.Show("Bit Depth under 24 bits NOT supported!");
+                return;
             }
             br.ReadChars(0x18);
             int rowByte = width * 2;
