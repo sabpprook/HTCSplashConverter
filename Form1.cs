@@ -56,7 +56,7 @@ namespace HTCSplashConverter
             openFileDialog1.Filter = "Bitmap|*.bmp";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                foreach(string file in openFileDialog1.FileNames)
+                foreach (string file in openFileDialog1.FileNames)
                 {
                     BMP2Splash(file);
                 }
@@ -151,10 +151,20 @@ namespace HTCSplashConverter
 
         private void detectSplashLength(ref FileStream file, ref int height, ref int width)
         {
-            if (file.Length == 0x720000 /*HTC stock splash*/ || file.Length == 0x708000)
+        	if (file.Length == 0x800000 /*HTC stock splash*/ || file.Length == 0x7E9000)
             {
                 height = 2560;
                 width = 1440;
+            }
+            else if (file.Length == 0x720000 /*HTC stock splash*/ || file.Length == 0x708000)
+            {
+                height = 2560;
+                width = 1440;
+            }
+            else if (file.Length == 0x480000 /*HTC stock splash*/ || file.Length == 0x473100)
+            {
+                height = 2160;
+                width = 1080;
             }
             else if (file.Length == 0x400000 /*HTC stock splash*/ || file.Length == 0x3F4800)
             {
@@ -182,7 +192,7 @@ namespace HTCSplashConverter
             int height = br.ReadInt32();
             br.ReadChars(0x2);
             int bitDepth = br.ReadInt16();
-            if (bitDepth<24)
+            if (bitDepth < 24)
             {
                 br.Close();
                 input.Close();
